@@ -43,3 +43,12 @@
 
 > 역할은 고정되지 않으며, 필요에 따라 유연하게 조정합니다.
 
+## Data Directory Structure
+
+본 프로젝트는 데이터 용량 및 관리 문제로 인해  
+**원본 데이터(raw)와 전처리된 데이터(processed)를 GitHub에 포함하지 않습니다.**
+
+```text
+data/
+├─ raw/        # 원본 데이터 (GitHub에 업로드되지 않음)
+└─ processed/  # 전처리된 데이터 (GitHub에 업로드되지 않음)

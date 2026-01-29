@@ -1,5 +1,7 @@
 # Ignore sprint_ai_project1_data directory
-ai-07-object-detection/sprint_ai_project1_data/
+#Data
+data/raw/
+data/processed/*
 
 # Python
 __pycache__/
