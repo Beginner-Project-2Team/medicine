@@ -48,7 +48,28 @@
 본 프로젝트는 데이터 용량 및 관리 문제로 인해  
 **원본 데이터(raw)와 전처리된 데이터(processed)를 GitHub에 포함하지 않습니다.**
 
-```text
-data/
-├─ raw/        # 원본 데이터 (GitHub에 업로드되지 않음)
-└─ processed/  # 전처리된 데이터 (GitHub에 업로드되지 않음)
+# 📦 Environment Setup
+
+이 프로젝트는 Python 3.13과 conda 환경을 기준으로 합니다.
+GPU 사용은 선택 사항이며, GPU가 없는 환경에서도 실행할 수 있습니다.
+
+1️⃣ Conda 환경 생성 (권장)
+
+conda env create -f environment.yml
+conda activate medicine
+
+
+Python 3.13 기반 환경이 생성됩니다.
+
+데이터 분석 및 기본 실행에 필요한 패키지가 설치됩니다.
+
+2️⃣ pip만 사용하는 경우 (대안)
+
+conda를 사용하지 않는 경우 아래 명령으로 최소 실행 환경을 구성할 수 있습니다.
+
+pip install -r requirements.txt
+
+
+CPU 기준으로 설치됩니다.
+
+GPU가 없어도 코드 실행이 가능합니다.
