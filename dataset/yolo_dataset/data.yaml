@@ -1,0 +1,61 @@
+names:
+  0: pill_1900
+  1: pill_2483
+  2: pill_3351
+  3: pill_3483
+  4: pill_3544
+  5: pill_3743
+  6: pill_3832
+  7: pill_4543
+  8: pill_12081
+  9: pill_12247
+  10: pill_12778
+  11: pill_13395
+  12: pill_13900
+  13: pill_16232
+  14: pill_16262
+  15: pill_16548
+  16: pill_16551
+  17: pill_16688
+  18: pill_18147
+  19: pill_18357
+  20: pill_19232
+  21: pill_19552
+  22: pill_19607
+  23: pill_19861
+  24: pill_20014
+  25: pill_20238
+  26: pill_20877
+  27: pill_21325
+  28: pill_21771
+  29: pill_22074
+  30: pill_22347
+  31: pill_22362
+  32: pill_24850
+  33: pill_25367
+  34: pill_25438
+  35: pill_25469
+  36: pill_27733
+  37: pill_27777
+  38: pill_27926
+  39: pill_27993
+  40: pill_28763
+  41: pill_29345
+  42: pill_29451
+  43: pill_29667
+  44: pill_30308
+  45: pill_31863
+  46: pill_31885
+  47: pill_32310
+  48: pill_33009
+  49: pill_33208
+  50: pill_33880
+  51: pill_34597
+  52: pill_35206
+  53: pill_36637
+  54: pill_38162
+  55: pill_41768
+nc: 56
+path: C:\Users\YJ\Desktop\medicine\dataset\yolo_dataset
+train: images/train
+val: images/val

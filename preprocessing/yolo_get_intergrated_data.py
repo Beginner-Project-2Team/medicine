@@ -1,10 +1,13 @@
 from imports import *
-from coco_preprocessing import cooco_preprocessing
-def get_integrated_data(ann_dir):
-    #경로 설정
-    base_path = r"C:\Users\KIMJW\Desktop\medicine\data"
-    ann_dir = os.path.join(base_path,"raw" ,"train_annotations_1")
-    json_paths = glob.glob(os.path.join(ann_dir, "**", "*.json"), recursive = True)
+from pathlib import Path
+from configs.load_paths import DATA_TRAIN_ANNOTATIONS
+from preprocessing.yolo_coco_preprocessing import yolo_cooco_preprocessing
+
+def yolo_get_integrated_data(ann_dir):
+    # ann_dir 파라미터를 사용 (하드코딩 제거)
+    # Path 객체로 변환 (str이 들어와도 처리 가능)
+    ann_dir = Path(ann_dir) if not isinstance(ann_dir, Path) else ann_dir
+    json_paths = list(ann_dir.rglob("*.json"))
 
     # 통합 딕셔너리
     # {이미지명 : {"boxes": [], "labels": [], "width": 0, "height": 0}} 구조
@@ -39,10 +42,7 @@ def get_integrated_data(ann_dir):
     return integrated_data
 
 if __name__ == "__main__":
-    BASE_PATH = r"C:\Users\KIMJW\Desktop\medicine\data"
-    ANN_DIR = os.path.join(BASE_PATH, "raw","train_annotations_1")
-    cooco_preprocessing()
-    pill_data = get_integrated_data(ANN_DIR)
+    pill_data = yolo_get_integrated_data(DATA_TRAIN_ANNOTATIONS)
 
 # 1. 박스가 아예 없는 이미지 (진짜 꽝)
     empty_images = [name for name, info in pill_data.items() if len(info['boxes']) == 0]

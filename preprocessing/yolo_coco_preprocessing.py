@@ -1,12 +1,12 @@
 from imports import *
+from configs.load_paths import DATA_TRAIN_ANNOTATIONS, DATA_TRAIN_IMAGES, DATA_TEST_IMAGES
 
-def cooco_preprocessing():
-    base_path = r"C:\Users\KIMJW\Desktop\medicine\data"
-    # base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    ann_dir = os.path.join(base_path, "raw", "train_annotations_1")
-    img_dir = os.path.join(base_path, "raw", "train_images")
-    test_dir = os.path.join(base_path, "raw", "test_images")
-    json_paths = glob.glob(os.path.join(ann_dir, "**", "*.json"), recursive = True)
+def yolo_cooco_preprocessing():
+    ann_dir = DATA_TRAIN_ANNOTATIONS
+    img_dir = DATA_TRAIN_IMAGES
+    test_dir = DATA_TEST_IMAGES
+
+    json_paths = list(ann_dir.rglob("*.json"))
 
     issues = {
         
@@ -25,10 +25,10 @@ def cooco_preprocessing():
 
         img_info = data["images"][0]
         f_name = img_info["file_name"]
-        img_path = os.path.join(img_dir, f_name)
+        img_path = img_dir / f_name
 
         # 이미지 존재 여부 확인
-        if not os.path.exists(img_path):
+        if not img_path.exists():
             issues["missing_images"].append(f_name)
             continue
 
@@ -57,10 +57,10 @@ def cooco_preprocessing():
     print(f"카테고리 불일치 박스: {len(issues['category_mismatch'])}개")
     print(f"경계 벗어난 박스: {len(issues['out_of_bounds'])}개")
     print(f"json_files 개수:{len(json_paths)}")
-    print(f"test_img 개수 : {len(test_dir)}")
+    print(f"test_img 개수 : {len(os.listdir(test_dir))}")
 
     return issues
 
 if __name__=="__main__":
-    results = cooco_preprocessing()
+    results = yolo_cooco_preprocessing()
 
