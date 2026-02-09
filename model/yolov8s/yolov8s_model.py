@@ -1,17 +1,17 @@
 from imports import *
+from configs.load_paths import DATASET_YOLO
 
 def train_model():
     # 1. 모델 로드
     model = YOLO('yolov8s.pt')
-    base_path = r"C:\Users\KIMJW\Desktop\medicine\data"
-    
-    # 2. 데이터셋 경로 설정
-    data_yaml_path = os.path.join(base_path, "raw", "yolo_dataset", "data.yaml")
+
+    # 2. 데이터셋 경로 설정 (공통 경로 사용)
+    data_yaml_path = DATASET_YOLO / "data.yaml"
 
     # 3. 모델 학습 (Training)
     results = model.train(
         data=data_yaml_path,   
-        epochs=60,             
+        epochs=50,             
         imgsz=640,             
         batch=16,              
         device=0,              # CUDA 사용을 위해 0으로 설정

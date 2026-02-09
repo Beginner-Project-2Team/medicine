@@ -1,12 +1,13 @@
 from imports import *
-from get_intergrated_data import get_integrated_data
+from configs.load_paths import DATA_TRAIN_IMAGES, DATA_TRAIN_ANNOTATIONS, DATASET_YOLO
+from preprocessing.yolo_get_intergrated_data import yolo_get_integrated_data
 class PillYOLOConverter:
-    def __init__(self, base_path, train_ratio=0.8):
-        self.base_path = base_path
+    def __init__(self, train_ratio=0.8):
         self.train_ratio = train_ratio
-        self.raw_img_dir = os.path.join(base_path, "raw","train_images")
-        self.raw_ann_dir = os.path.join(base_path, "raw","train_annotations")
-        self.yolo_root = os.path.join(base_path, "raw","yolo_dataset")
+        # 공통 경로 사용
+        self.raw_img_dir = DATA_TRAIN_IMAGES
+        self.raw_ann_dir = DATA_TRAIN_ANNOTATIONS
+        self.yolo_root = DATASET_YOLO  # dataset/yolo_dataset/
 
     def _convert_to_yolo(self, box, img_w, img_h):
         x1, y1, x2, y2 = box
@@ -18,11 +19,11 @@ class PillYOLOConverter:
 
     def run(self):
         for mode in ['train', 'val']:
-            os.makedirs(os.path.join(self.yolo_root, 'images', mode), exist_ok=True)
-            os.makedirs(os.path.join(self.yolo_root, 'labels', mode), exist_ok=True)
+            (self.yolo_root / "images" / mode).mkdir(parents=True, exist_ok=True)
+            (self.yolo_root / "labels" / mode).mkdir(parents=True, exist_ok=True)
 
         print("📦 데이터를 통합 중...")
-        master_data = get_integrated_data(self.raw_ann_dir)
+        master_data = yolo_get_integrated_data(self.raw_ann_dir)
         print(f"=====master_data : {len(master_data)}")
         all_imgs = list(master_data.keys())
 
@@ -46,11 +47,12 @@ class PillYOLOConverter:
                 data = master_data[img_name]
                 img_w, img_h = data['width'], data['height']
 
-                shutil.copy(os.path.join(self.raw_img_dir, img_name),
-                            os.path.join(self.yolo_root, 'images', mode, img_name))
+                shutil.copy(
+                    self.raw_img_dir / img_name,
+                    self.yolo_root / "images" / mode / img_name)
 
                 label_name = os.path.splitext(img_name)[0] + ".txt"
-                with open(os.path.join(self.yolo_root, 'labels', mode, label_name), "w") as f:
+                with open(self.yolo_root / 'labels' / mode / label_name, "w") as f:
                     for box, orig_label in zip(data['boxes'], data['labels']):
                         yolo_box = self._convert_to_yolo(box, img_w, img_h)
                         # [중요] 원본 라벨 대신 매핑된 0~N 번호를 사용합니다.
@@ -64,16 +66,15 @@ class PillYOLOConverter:
     def _create_yaml(self, sorted_labels):
         # YOLOv8 공식 형식을 따르기 위해 nc를 명시해주는 것이 좋습니다.
         yaml_content = {
-            'path': self.yolo_root,
+            'path': str(self.yolo_root),  # Path 객체를 문자열로 변환
             'train': 'images/train',
             'val': 'images/val',
             'nc': len(sorted_labels), # 클래스 개수 명시
             'names': {i: f"pill_{orig_id}" for i, orig_id in enumerate(sorted_labels)}
         }
-        with open(os.path.join(self.yolo_root, "data.yaml"), "w") as f:
+        with open(self.yolo_root / "data.yaml", "w") as f:
             yaml.dump(yaml_content, f, default_flow_style=False)
 
 if __name__ == "__main__":
-    BASE_PATH = r"C:\Users\KIMJW\Desktop\medicine\data"
-    converter = PillYOLOConverter(BASE_PATH)
+    converter = PillYOLOConverter()
     converter.run()

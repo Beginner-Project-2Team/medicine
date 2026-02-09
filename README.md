@@ -73,3 +73,19 @@ pip install -r requirements.txt
 CPU 기준으로 설치됩니다.
 
 GPU가 없어도 코드 실행이 가능합니다.
+
+📁 Path 규칙
+
+프로젝트 루트: medicine/
+
+노트북:
+
+PROJECT_ROOT = Path.cwd().parent
+
+
+스크립트:
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+
+모든 경로는 PROJECT_ROOT 기준으로 작성

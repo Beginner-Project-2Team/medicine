@@ -1,0 +1,48 @@
+# 공통 경로 설정
+# 모든 경로는 "프로젝트 루트 기준 상대경로"로 작성
+
+# 데이터 관련 경로
+data: 
+  raw: data/raw
+  processed: data/processed
+  test_images: data/raw/test_images
+  train_annotations: data/raw/train_annotations
+  train_images: data/raw/train_images
+
+# 데이터셋 관련
+dataset:
+  faster_py: dataset/faster_.py
+  yolo_dataset: dataset/yolo_dataset  # YOLO 변환 데이터셋 저장 위치
+
+
+# 모델 관련
+model:
+  model_py: model/model.py
+  yolov8s_folder: model/yolov8s
+  yolov8s_model: model/yolov8s/yolov8s_model.py
+  run_inference: model/yolov8s/run_inference.py
+
+# 노트북 관련
+notebooks:
+  eda_coco: notebooks/eda_coco.ipynb
+  my: notebooks/my.ipynb
+  preprocess: notebooks/preprocess.ipynb
+
+# 결과물 관련
+outputs:
+  folder: outputs                          # outputs 폴더 전체
+  checkpoints: outputs/checkpoints         # 모델 가중치 저장 ← 여기!
+  logs: outputs/logs                       # 학습 로그
+  results: outputs/results                 # 결과 (그래프, 메트릭 등)
+
+# 전처리 관련
+preprocessing:
+  folder: preprocessing
+  yolo_coco_preprocessing: preprocessing/yolo_coco_preprocessing.py
+  yolo_converter: preprocessing/yolo_converter.py
+  yolo_get_intergrated_data: preprocessing/yolo_get_intergrated_data.py
+
+
+# 제출 관련
+submit:
+  csv: submit/csv.md

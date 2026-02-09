@@ -1,10 +1,12 @@
 from imports import *
+from configs.load_paths import DATA_TEST_IMAGES, PROJECT_ROOT
 import re
 
 
 def run_inference():
     # 1. 학습된 모델 로드
-    model_path = r'C:\Users\KIMJW\Desktop\medicine\runs\detect\pill_project\yolov8_pill_detect4\weights\best.pt'
+    # TODO: 학습 후 생성된 실제 모델 경로로 업데이트하세요
+    model_path = PROJECT_ROOT / "runs" / "detect" / "pill_project" / "yolov8_pill_detect4" / "weights" / "best.pt"
     model = YOLO(model_path)
     model_to_catid = {}
 
@@ -13,16 +15,16 @@ def run_inference():
         model_to_catid[int(k)] = int(numeric_id)
 
 
-    # 2. 테스트 이미지 경로 및 파일 목록 확보
-    test_img_dir = r'C:\Users\KIMJW\Desktop\medicine\data\raw\test_images'
-    test_images = sorted([f for f in os.listdir(test_img_dir) if f.endswith(('.jpg', '.png', '.jpeg'))])
-    
+    # 2. 테스트 이미지 경로 및 파일 목록 확보 (공통 경로 사용)
+    test_img_dir = DATA_TEST_IMAGES
+    test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
+
     submission_data = []
     ann_id = 1
-    
+
     print("🚀 추론 시작...")
     for img_name in tqdm(test_images):
-        img_path = os.path.join(test_img_dir, img_name)
+        img_path = test_img_dir / img_name
         
         # [수정] image_id: 이미지 파일명에서 숫자만 추출하여 정수로 변환
         # 루프 안에서 현재 처리 중인 img_name을 사용해야 합니다.
@@ -62,7 +64,9 @@ def run_inference():
                 
     # 3. CSV 저장
     df = pd.DataFrame(submission_data)
-    output_path = "submission_yolov8s_fixed.csv"
+    output_dir = PROJECT_ROOT / "submit"
+    output_dir.mkdir(exist_ok=True)  # submit 폴더 생성
+    output_path = output_dir / "submission_yolov8s_fixed.csv"
     df.to_csv(output_path, index=False)
     print(f"✅ 제출 파일 생성 완료: {output_path}")
 
