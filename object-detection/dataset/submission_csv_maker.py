@@ -3,6 +3,7 @@ import pandas as pd
 import torch
 from torchvision.transforms import functional as F
 from PIL import Image
+from torchvision import transforms
 
 # 1. 환경 설정 및 에러 방지
 # 그래픽카드(CUDA)가 사용 가능하면 GPU를 쓰고, 아니면 CPU를 쓰도록 설정합니다.
@@ -10,9 +11,9 @@ device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cp
 
 # 2. 경로 설정
 # 테스트용 이미지가 들어있는 폴더 경로입니다. (r을 붙여 역슬래시 에러 방지)
-TEST_IMG_DIR = r'C:\Users\KIMJW\Desktop\medicine\data\raw\test_images'
+TEST_IMG_DIR = r'C:\Users\User\Documents\Python\project_1\pj\medicine\data\raw\test_images'
 # 결과물이 저장될 경로입니다.
-SUBMISSION_PATH = r"C:\Users\KIMJW\Desktop\medicine\submission.csv"
+SUBMISSION_PATH = r"C:\Users\User\Desktop\medicine\submission.csv"
 
 # 3. 모델 로드
 #  학습시켜 저장한 '지식(가중치)' 파일인 last_model.pth를 불러옵니다.
@@ -25,6 +26,12 @@ model.eval()
 # 4. 추론 및 결과 정리
 # 폴더 내 이미지 파일들만 골라내어 이름순으로 정렬합니다.
 test_images = sorted([f for f in os.listdir(TEST_IMG_DIR) if f.endswith(('.png', '.jpg', '.jpeg'))])
+
+norm = transforms.Normalize(
+    mean=(0.485, 0.456, 0.406),
+    std=(0.229, 0.224, 0.225),
+)
+
 results_list = [] # 정답 데이터를 담을 빈 리스트입니다.
 ann_id_counter = 1 # 제출 양식의 고유 번호(annotation_id)를 1부터 시작합니다.
 
@@ -41,7 +48,7 @@ with torch.no_grad():
         # 이미지를 열고 RGB 색상 모드로 바꿉니다.
         img = Image.open(img_path).convert("RGB")
         # 이미지를 텐서(숫자 뭉치)로 바꾸고 GPU로 보냅니다.
-        img_tensor = F.to_tensor(img).to(device)
+        img_tensor = norm(F.to_tensor(img)).to(device)
         # 모델에게 이미지를 주고 결과를 예측합니다.
         outputs = model([img_tensor])
 
@@ -78,5 +85,5 @@ with torch.no_grad():
 # 모아둔 정답 리스트를 표(DataFrame) 형태로 만듭니다.
 df = pd.DataFrame(results_list)
 # 표를 CSV 파일로 저장합니다. (인덱스 번호는 제외)
-df.to_csv(r"C:\Users\KIMJW\Desktop\medicine\submission.csv", index=False)
+df.to_csv(r"C:\Users\User\Desktop\submission.csv", index=False)
 print("생성 완료!")
