@@ -15,3 +15,10 @@ dependencies:
       # DL / GPU
       - torch
       - torchvision
+
+      # YOLO 및 전처리
+      - ultralytics        # YOLOv8
+      - opencv-python      # cv2 (이미지 처리)
+      - pyyaml             # YAML 파일 읽기/쓰기
+      - tqdm               # 진행바
+      - scikit-learn       # train_test_split
