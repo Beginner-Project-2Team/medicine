@@ -62,7 +62,6 @@ Thumbs.db
 logs/
 
 # Data files (optional - comment out if needed)
-*.csv
 *.xlsx
 *.pkl
 *.pickle
@@ -125,7 +124,6 @@ Thumbs.db
 logs/
 
 # Data files (optional - comment out if needed)
-*.csv
 *.xlsx
 *.pkl
 *.pickle
