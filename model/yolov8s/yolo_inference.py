@@ -39,20 +39,43 @@ def yolo_inference(model_path=None, output_name=None):
             return
 
     print(f"모델 로딩: {model_path}")
+
     model = YOLO(model_path)
-    model_to_catid = {}
+    # model_to_catid = {}
+    #-------------------------추가부분--------------------------------------
+    original_ids = [
+        1900, 2483, 3351, 3483, 3544, 3743, 3832, 4543, 12081, 12247, 
+        12778, 13395, 13900, 16232, 16262, 16548, 16551, 16688, 18147, 18357, 
+        19232, 19552, 19607, 19861, 20014, 20238, 20877, 21325, 21771, 22074, 
+        22347, 22362, 24850, 25367, 25438, 25469, 27733, 27777, 27926, 27993, 
+        28763, 29345, 29451, 29667, 30308, 31863, 31885, 32310, 33009, 33208, 
+        33880, 34597, 35206, 36637, 38162, 41768
+    ]
+    model_to_catid = {i: orig_id for i, orig_id in enumerate(original_ids)}
 
-    for k, v in model.names.items():
-        numeric_id = re.sub(r'[^0-9]', '', v) 
-        model_to_catid[int(k)] = int(numeric_id)
+    # 시각화 결과 저장 경로 (medicine2로 수정)
+    output_img_dir = PROJECT_ROOT / "runs" / "detect" / "test_visuals"
+    output_img_dir.mkdir(parents=True, exist_ok=True)
 
-
-    # 2. 테스트 이미지 경로 및 파일 목록 확보 (공통 경로 사용)
-    test_img_dir = DATA_TEST_IMAGES
-    test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
-
+    # 2. 테스트 이미지 경로 확보
+    test_img_dir = PROJECT_ROOT / "data" / "raw" / "test_images"
+    test_images = sorted([f for f in os.listdir(test_img_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
+    
     submission_data = []
     ann_id = 1
+    #-------------------------추가부분--------------------------------------
+
+    # for k, v in model.names.items():
+    #     numeric_id = re.sub(r'[^0-9]', '', v) 
+    #     model_to_catid[int(k)] = int(numeric_id)
+
+
+    # # 2. 테스트 이미지 경로 및 파일 목록 확보 (공통 경로 사용)
+    # test_img_dir = DATA_TEST_IMAGES
+    # test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
+
+    # submission_data = []
+    # ann_id = 1
 
     print("🚀 추론 시작...")
     for img_name in tqdm(test_images):
@@ -65,6 +88,7 @@ def yolo_inference(model_path=None, output_name=None):
         results = model.predict(img_path, conf=0.03,
                                  imgsz = 1024,
                                  verbose=False)
+
         
         for result in results:
             boxes = result.boxes.data.cpu().numpy()
