@@ -42,8 +42,13 @@ from configs.load_paths import DATASET_YOLO
 #---------------------------------------------------------------------------
 model = YOLO('yolov8s.pt')
 def train_model(model_obj):
+    timestamp = datetime.now().strftime("%Y%m%d_%H_%M")
     # 2. 데이터셋 경로 설정
     data_yaml_path = DATASET_YOLO / "data.yaml"
+    
+
+    save_project_dir = PROJECT_ROOT / "outputs" / "yolov8_learn_results"
+    save_project_dir.mkdir(parents = True, exist_ok=True)
 
     # 3. 모델 학습 (Training)
     results = model_obj.train(
@@ -52,7 +57,7 @@ def train_model(model_obj):
         imgsz=1024,             
         batch=2,              
         device=0,              # CUDA 사용을 위해 0으로 설정
-        project='pill_project', 
+        project=str(save_project_dir), 
         name=f'yolov8_pill_{datetime.now().strftime("%Y%m%d_%H_%M")}',
         # lr0 = 0.01
         mosaic=1.0,       # 모자이크 
