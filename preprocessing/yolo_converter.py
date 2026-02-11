@@ -10,6 +10,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from imports import *
 from configs.load_paths import DATA_TRAIN_IMAGES, DATA_TRAIN_ANNOTATIONS, DATASET_YOLO
 from preprocessing.coco_data_integration import get_integrated_coco_data
+
 class PillYOLOConverter:
     def __init__(self, train_ratio=0.8):
         self.train_ratio = train_ratio
