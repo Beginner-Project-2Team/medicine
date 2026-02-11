@@ -2,5 +2,16 @@ numpy==2.4.1
 pandas==3.0.0
 matplotlib==3.10.8
 pillow==12.1.0
+
+# DL / GPU
 torch
 torchvision
+
+# YOLO 및 전처리
+ultralytics
+opencv-python
+pyyaml
+tqdm
+scikit-learn
+torchmetrics
+pycocotools
