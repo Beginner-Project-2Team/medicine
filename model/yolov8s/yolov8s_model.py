@@ -10,70 +10,53 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from imports import *
 from configs.load_paths import DATASET_YOLO
 
-# def train_model(epochs=2, imgsz=640, batch=4, name="yolo1"):
-#     # 1. 모델 로드
-#     model = YOLO('yolov8s.pt')
-
-#     # 2. 데이터셋 경로 설정 (공통 경로 사용)
-#     data_yaml_path = DATASET_YOLO / "data.yaml"
-
-#     # 3. 모델 학습 (Training)
-#     results = model.train(
-#         data=data_yaml_path,
-#         epochs=epochs,
-#         imgsz=imgsz,
-#         batch=batch,
-#         device=0,
-#         project=str(PROJECT_ROOT / "outputs" / "yolo"),
-#         name=name,
-#     )
-
-#     # 4. 성능 검증
-#     metrics = model.val()
-#     print(f"Mean Average Precision (mAP): {metrics.box.map}")
-
-# # --- 이 부분이 가장 중요합니다! ---
-# if __name__ == '__main__':
-#     # 윈도우 멀티프로세싱 에러를 방지하기 위해
-#     # 반드시 이 안에서 실행 코드를 호출해야 합니다.
-#     train_model(name="yolo1")  # ← 개별 실행 시 여기서 이름 변경
-
-
-#---------------------------------------------------------------------------
-model = YOLO('yolov8s.pt')
-def train_model(model_obj):
+def train_model(epochs=2, imgsz=1024, batch=2):
+    # [변경] 파라미터를 외부에서 받도록 수정 (기존: model_obj를 받아서 사용)
+    # [변경] 모델을 함수 안에서 로드 (기존: 모듈 최상위에서 로드 → import시 불필요한 로드 발생)
+    model = YOLO('yolov8s.pt')
     timestamp = datetime.now().strftime("%Y%m%d_%H_%M")
     # 2. 데이터셋 경로 설정
     data_yaml_path = DATASET_YOLO / "data.yaml"
-    
 
-    save_project_dir = PROJECT_ROOT / "outputs" / "yolov8_learn_results"
+
+    # [변경] 저장 경로를 outputs/yolo로 통일 (기존: outputs/yolov8_learn_results → inference 탐색 경로와 불일치)
+    save_project_dir = PROJECT_ROOT / "outputs" / "yolo"
     save_project_dir.mkdir(parents = True, exist_ok=True)
 
     # 3. 모델 학습 (Training)
-    results = model_obj.train(
-        data=str(data_yaml_path),   
-        epochs=1,             
-        imgsz=1024,             
-        batch=2,              
+    results = model.train(
+        data=str(data_yaml_path),
+        epochs=epochs,
+        imgsz=imgsz,
+        batch=batch,
         device=0,              # CUDA 사용을 위해 0으로 설정
-        project=str(save_project_dir), 
-        name=f'yolov8_pill_{datetime.now().strftime("%Y%m%d_%H_%M")}',
+        project=str(save_project_dir),
+        name=f'yolov8_pill_{timestamp}',  # [변경] timestamp 변수 사용 (기존: datetime.now()를 다시 호출)
+
         # lr0 = 0.01
-        mosaic=1.0,       # 모자이크 
-        mixup=0.0,        # 이미지 겹치기 
-        hsv_h=0.005, hsv_s=0.2, hsv_v=0.2, # 색조 변경, 채도 변경, 명도 변경            
-        degrees=30.0, flipud=0.5, fliplr=0.5,  # 회전, 상하 반전, 좌우 반전  
-        translate=0.1, scale=0.2, shear=0.0,   # 이동, 확대/축소, 전단 변형 
-        perspective=0.001,  # 투영 변형 
+        mosaic=1.0,       # 모자이크
+        mixup=0.0,        # 이미지 겹치기
+        hsv_h=0.005, hsv_s=0.2, hsv_v=0.2, # 색조 변경, 채도 변경, 명도 변경
+        degrees=30.0, flipud=0.5, fliplr=0.5,  # 회전, 상하 반전, 좌우 반전
+        translate=0.1, scale=0.2, shear=0.0,   # 이동, 확대/축소, 전단 변형
+        perspective=0.001,  # 투영 변형
     )
 
     # 4. 성능 검증
-    metrics = model_obj.val()
-    print(f"Mean Average Precision (mAP): {metrics.box.map}")
+    # [변경] 기존: mAP 하나만 출력 → 여러 지표 출력 + 캐글 커스텀 지표 추가
+    metrics = model.val()
+    print(f"mAP@[0.5:0.95]: {metrics.box.map:.4f}")
+    print(f"mAP@0.50:       {metrics.box.map50:.4f}")
+    print(f"mAP@0.75:       {metrics.box.map75:.4f}")
 
-    return metrics
+    # [추가] mAP@[0.75:0.95] 계산 (캐글 대회 지표)
+    # all_ap: [10개 IoU threshold, num_classes] → 인덱스 5~9가 IoU 0.75~0.95
+    all_ap = metrics.box.all_ap  # shape: [10, num_classes]
+    map_75_95 = all_ap[5:].mean()
+    print(f"mAP@[0.75:0.95]: {map_75_95:.4f}")
 
+    # [변경] model도 함께 return (기존: metrics만 반환 → log_save에서 model 필요)
+    return model, metrics, map_75_95
 
 
 def log_save(model_obj, save_dir, custom_notes="", metrics = None):
@@ -130,6 +113,6 @@ def log_save(model_obj, save_dir, custom_notes="", metrics = None):
 if __name__ == '__main__':
     # 윈도우 멀티프로세싱 에러를 방지하기 위해 
     # 반드시 이 안에서 실행 코드를 호출해야 합니다.
-    results_metrics = train_model(model)
+    model, metrics, map_75_95 = train_model()
     log_folder = PROJECT_ROOT / "outputs" / "logs"
-    log_save(model_obj = model, save_dir= log_folder, metrics=results_metrics)
+    log_save(model_obj=model, save_dir=log_folder, metrics=metrics)

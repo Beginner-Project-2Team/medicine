@@ -25,33 +25,13 @@ def get_absolute_path(relative_path):
     return (PROJECT_ROOT / relative_path).resolve()
 
 # 경로 변수 정의
- 
-# 데이터 
-DATA_RAW = get_absolute_path(paths_config["data"]["raw"])
+
+# 데이터
 DATA_PROCESSED = get_absolute_path(paths_config["data"]["processed"])
 DATA_TEST_IMAGES = get_absolute_path(paths_config["data"]["test_images"])
 DATA_TRAIN_ANNOTATIONS = get_absolute_path(paths_config["data"]["train_annotations"])
 DATA_TRAIN_IMAGES = get_absolute_path(paths_config["data"]["train_images"])
 
 # 데이터셋
-DATASET_FASTER_PY = get_absolute_path(paths_config["dataset"]["faster_py"])
 DATASET_YOLO = get_absolute_path(paths_config["dataset"]["yolo_dataset"])
-
-
-# 모델 (코드만)
-MODEL_PY = get_absolute_path(paths_config["model"]["model_py"])
-MODEL_YOLOV8S_DIR = get_absolute_path(paths_config["model"]["yolov8s_folder"])
-MODEL_YOLOV8S = get_absolute_path(paths_config["model"]["yolov8s_model"])
-MODEL_RUN_INFERENCE = get_absolute_path(paths_config["model"]["run_inference"])
-
-# 전처리
-PREPROCESSING_DIR = get_absolute_path(paths_config["preprocessing"]["folder"])
-PREPROCESSING_YOLO_COCO = get_absolute_path(paths_config["preprocessing"]["yolo_coco_preprocessing"])
-PREPROCESSING_YOLO_CONVERTER = get_absolute_path(paths_config["preprocessing"]["yolo_converter"])
-PREPROCESSING_YOLO_GET_DATA = get_absolute_path(paths_config["preprocessing"]["yolo_get_intergrated_data"])
-
-# 노트북
-NOTEBOOK_EDA_COCO = get_absolute_path(paths_config["notebooks"]["eda_coco"])
-NOTEBOOK_MY = get_absolute_path(paths_config["notebooks"]["my"])
-NOTEBOOK_PREPROCESS = get_absolute_path(paths_config["notebooks"]["preprocess"])
 

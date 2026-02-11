@@ -28,6 +28,7 @@ from tqdm import tqdm
 from pprint import pprint
 import shutil
 import yaml
+from datetime import datetime  # [추가] yolov8s_model.py에서 timestamp 생성용
 from ultralytics import YOLO
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -119,6 +119,11 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=50)
 def evaluate_mAP(model, data_loader, device):
     model.eval()
     metric = MeanAveragePrecision(iou_type="bbox")
+    # [추가] mAP@[0.75:0.95] 계산용 (캐글 대회 지표)
+    metric_75_95 = MeanAveragePrecision(
+        iou_type="bbox",
+        iou_thresholds=[0.75, 0.80, 0.85, 0.90, 0.95]
+    )
 
     for images, targets in tqdm(data_loader, desc="Evaluating"):
         images = [img.to(device) for img in images]
@@ -140,12 +145,15 @@ def evaluate_mAP(model, data_loader, device):
             })
 
         metric.update(preds, gts)
+        metric_75_95.update(preds, gts)
 
     result = metric.compute()
+    result_75_95 = metric_75_95.compute()
     return {
-        "mAP": result["map"].item(),        # mAP@[0.5:0.95] (COCO 기본)
-        "mAP_50": result["map_50"].item(),   # mAP@IoU=0.5
-        "mAP_75": result["map_75"].item(),   # mAP@IoU=0.75
+        "mAP": result["map"].item(),              # mAP@[0.5:0.95] (COCO 기본)
+        "mAP_50": result["map_50"].item(),         # mAP@IoU=0.5
+        "mAP_75": result["map_75"].item(),         # mAP@IoU=0.75
+        "mAP_75_95": result_75_95["map"].item(),   # [추가] mAP@[0.75:0.95] (캐글 지표)
     }
 
 
@@ -175,7 +183,8 @@ def train_only(
             f"[Epoch {epoch}] "
             f"train_loss: {train_loss:.4f} | "
             f"mAP@50: {mAP_result['mAP_50']:.4f} | "
-            f"mAP@[.5:.95]: {mAP_result['mAP']:.4f}"
+            f"mAP@[.5:.95]: {mAP_result['mAP']:.4f} | "
+            f"mAP@[.75:.95]: {mAP_result['mAP_75_95']:.4f}"  # [추가] 캐글 지표
         )
 
         # best mAP 갱신 시 모델 저장
