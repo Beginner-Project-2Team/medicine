@@ -1,77 +1,15 @@
-# Ignore sprint_ai_project1_data directory
-#Data
+# Data
 data/raw/
 data/processed/*
 
 # YOLO 변환 데이터셋
-dataset/yolo_dataset/images/   
-dataset/yolo_dataset/labels/  
+dataset/yolo_dataset/images/
+dataset/yolo_dataset/labels/
 
-# YOLO 학습 결과 (모델 가중치 등)
-runs/                          
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE settings
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Jupyter
-.ipynb_checkpoints/
-
-# Environment variables
-.env
-.env.local
-
-# Logs
-*.log
-logs/
-
-# Data files (optional - comment out if needed)
-*.csv
-*.xlsx
-*.pkl
-*.pickle
-
-# Model files
-*.pth
-*.pt
-*.h5
-*.pb
+# 학습 결과
+runs/
+outputs/yolo/
+outputs/rcnn/
 
 # Python
 __pycache__/
@@ -112,6 +50,7 @@ venv.bak/
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Jupyter
 .ipynb_checkpoints/
@@ -124,7 +63,7 @@ Thumbs.db
 *.log
 logs/
 
-# Data files (optional - comment out if needed)
+# Data files
 *.csv
 *.xlsx
 *.pkl

@@ -1,12 +1,44 @@
+"""
+YOLOv8s 추론 및 제출 CSV 생성
+사용법: python model/yolov8s/yolo_inference.py
+"""
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from imports import *
 from configs.load_paths import DATA_TEST_IMAGES, PROJECT_ROOT
 import re
 
 
-def run_inference():
+def find_best_model():
+    """최신 YOLO 학습 결과에서 best.pt를 자동으로 찾기"""
+    search_dirs = [
+        PROJECT_ROOT / "outputs" / "yolo",
+        PROJECT_ROOT / "pill_project",
+        PROJECT_ROOT / "runs" / "detect",
+    ]
+    for search_dir in search_dirs:
+        if not search_dir.exists():
+            continue
+        # 가장 최근 수정된 best.pt 찾기
+        best_files = sorted(search_dir.rglob("best.pt"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if best_files:
+            return best_files[0]
+    return None
+
+
+def yolo_inference(model_path=None, output_name=None):
     # 1. 학습된 모델 로드
-    # TODO: 학습 후 생성된 실제 모델 경로로 업데이트하세요
-    model_path = PROJECT_ROOT / "runs" / "detect" / "pill_project" / "yolov8_pill_detect4" / "weights" / "best.pt"
+    if model_path is None:
+        model_path = find_best_model()
+        if model_path is None:
+            print("모델 파일을 찾을 수 없습니다!")
+            print("먼저 yolov8s_model.py로 학습을 실행하세요.")
+            return
+
+    print(f"모델 로딩: {model_path}")
     model = YOLO(model_path)
     model_to_catid = {}
 
@@ -62,13 +94,16 @@ def run_inference():
                 })
                 ann_id += 1 
                 
-    # 3. CSV 저장
+    # 3. CSV 저장 (모델 이름으로 자동 생성)
     df = pd.DataFrame(submission_data)
     output_dir = PROJECT_ROOT / "submit"
-    output_dir.mkdir(exist_ok=True)  # submit 폴더 생성
-    output_path = output_dir / "submission_yolov8s_fixed.csv"
+    output_dir.mkdir(exist_ok=True)
+    if output_name is None:
+        # 모델 경로에서 이름 추출 (예: outputs/yolo/yolo1/weights/best.pt → yolo1)
+        output_name = Path(model_path).parents[1].name + ".csv"
+    output_path = output_dir / output_name
     df.to_csv(output_path, index=False)
     print(f"✅ 제출 파일 생성 완료: {output_path}")
 
 if __name__ == "__main__":
-    run_inference()
+    yolo_inference()
