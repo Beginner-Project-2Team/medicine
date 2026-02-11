@@ -35,6 +35,8 @@ def get_integrated_coco_data(ann_dir=None, use_cache=True):
     for jp in json_paths:
         with open(jp, "r", encoding="utf-8") as f:
             data = json.load(f)
+            
+        cat_id_to_name = {cat['id']: cat['name'] for cat in data.get('categories', [])}
 
         img_info = data["images"][0]
         f_name = img_info["file_name"]
@@ -42,7 +44,7 @@ def get_integrated_coco_data(ann_dir=None, use_cache=True):
 
         # 이미지별 딕셔너리 초기화
         if f_name not in integrated_data:
-            integrated_data[f_name] = {"boxes": [], "labels": [], "width": w, "height": h}
+            integrated_data[f_name] = {"boxes": [], "labels": [], "names_ko":[], "width": w, "height": h}
 
         # 어노테이션 정보 통합
         for ann in data["annotations"]:
@@ -61,6 +63,8 @@ def get_integrated_coco_data(ann_dir=None, use_cache=True):
             if clean_box not in integrated_data[f_name]["boxes"]:
                 integrated_data[f_name]["boxes"].append(clean_box)
                 integrated_data[f_name]["labels"].append(ann["category_id"])
+                ko_name = cat_id_to_name.get(ann["category_id"], f"pill_{ann['category_id']}")
+                integrated_data[f_name]["names_ko"].append(ko_name)
 
     print(f"✅ 통합 완료: {len(integrated_data)}개 이미지")
 
