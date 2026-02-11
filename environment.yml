@@ -5,20 +5,21 @@ channels:
 dependencies:
   - python=3.13
   - pip
+  - numpy=2.4.1
+  - pandas=3.0.0
+  - matplotlib=3.10.8
+  - pillow=12.1.0
+  - scikit-learn
+  - opencv
 
   - pip:
-      - numpy==2.4.1
-      - pandas==3.0.0
-      - matplotlib==3.10.8
-      - pillow==12.1.0
-
       # DL / GPU
       - torch
       - torchvision
 
       # YOLO 및 전처리
       - ultralytics        # YOLOv8
-      - opencv-python      # cv2 (이미지 처리)
       - pyyaml             # YAML 파일 읽기/쓰기
       - tqdm               # 진행바
-      - scikit-learn       # train_test_split
+      - torchmetrics       # mAP 등 평가 지표
+      - pycocotools        # COCO 평가 도구

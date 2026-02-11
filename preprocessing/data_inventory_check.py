@@ -1,16 +1,24 @@
-from imports import *
-base_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-print(f"base_path : {base_path}")
+"""
+데이터 현황 확인 스크립트
+사용법: python preprocessing/data_inventory_check.py
+"""
+import sys
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-# 결로 정의
+from imports import *
+from configs.load_paths import DATA_TRAIN_IMAGES, DATA_TRAIN_ANNOTATIONS, DATA_TEST_IMAGES
+
+# 공통 경로 사용
 paths = {
-    "train_img" : os.path.join(base_path, "data", "raw", "train_images"),
-    "train_anno" : os.path.join(base_path, "data", "raw", "train_annotations"),
-    "test_img" : os.path.join(base_path, "data", "raw", "test_images")
+    "train_img": DATA_TRAIN_IMAGES,
+    "train_anno": DATA_TRAIN_ANNOTATIONS,
+    "test_img": DATA_TEST_IMAGES
 }
 
 # 개수 파악
-report = {k: len(glob.glob(os.path.join(v, "**/*"), recursive=True)) for k, v in paths.items()}
+report = {k: len(list(v.rglob("*"))) for k, v in paths.items()}
 
 print("--데이터 현황--")
 for k, v in report.items():
@@ -22,9 +30,9 @@ train_anno : 1244개
 test_img : 842개
 """
 
-#알약 클래스 확인
+# 알약 클래스 확인
 pill_name = []
-json_paths = glob.glob(os.path.join(paths["train_anno"], "**", "*.json"), recursive=True)
+json_paths = list(DATA_TRAIN_ANNOTATIONS.rglob("*.json"))
 
 for jp in json_paths:
     with open(jp, "r", encoding = "utf-8") as f:
@@ -40,13 +48,12 @@ print(f"가장 적은 알약 : {counter.most_common()[:-4:-1]}\n") # bottom 3
 
 
 
-# 사진 한장당 json이 몇개식 붙어있는지 확인
-ann_dir = os.path.join(base_path, "data", "raw", "train_annotations")
-json_paths = glob.glob(os.path.join(ann_dir, "**", "*.json"), recursive=True)
+# 사진 한장당 json이 몇개씩 붙어있는지 확인
+json_paths = list(DATA_TRAIN_ANNOTATIONS.rglob("*.json"))
 
 img_to_ann_count = Counter()
 for jp in json_paths:
-    with open(jp, "r", encoding ="utf =8") as f:
+    with open(jp, "r", encoding="utf-8") as f:
         data = json.load(f)
         f_name = data["images"][0]["file_name"]
         img_to_ann_count[f_name] += 1
