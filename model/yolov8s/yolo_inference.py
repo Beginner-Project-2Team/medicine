@@ -53,6 +53,10 @@ def yolo_inference(model_path=None, output_name=None):
     ]
     model_to_catid = {i: orig_id for i, orig_id in enumerate(original_ids)}
 
+    #시각화 결과 저장 경로
+    output_img_dir = PROJECT_ROOT / 'outputs' / 'pred_visual'
+    output_img_dir.mkdir(parents=True, exist_ok=True)
+
     # [변경] 공통 경로 사용 (기존: PROJECT_ROOT / "data" / "raw" / "test_images" 하드코딩)
     test_img_dir = DATA_TEST_IMAGES
     test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
@@ -68,8 +72,9 @@ def yolo_inference(model_path=None, output_name=None):
         # 루프 안에서 현재 처리 중인 img_name을 사용해야 합니다.
         image_id = int(re.sub(r'[^0-9]', '', img_name))
         
-        results = model.predict(img_path, conf=0.03,
+        results = model.predict(img_path, conf=0.2,
                                  imgsz = 1024,
+                                 augment = True,
                                  verbose=False)
 
         
@@ -99,7 +104,14 @@ def yolo_inference(model_path=None, output_name=None):
                     "bbox_h": round(float(h), 2),
                     "score": round(float(score), 4)
                 })
-                ann_id += 1 
+                ann_id += 1
+
+                ###시각화 추가
+                
+                res_plotted = result.plot()##시각화 추가
+                # timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                save_path = output_img_dir / f"pred_{image_id}.jpg"
+                cv2.imwrite(str(save_path), res_plotted)
                 
     # 3. CSV 저장 (모델 이름으로 자동 생성)
     df = pd.DataFrame(submission_data)
