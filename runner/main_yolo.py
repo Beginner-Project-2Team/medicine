@@ -15,10 +15,6 @@ from preprocessing.yolo_converter import PillYOLOConverter
 from model.yolov8s.yolov8s_model import train_model
 from model.yolov8s.yolo_inference import yolo_inference
 
-# 모델 이름 (실험마다 바꾸기) 
-MODEL_NAME = "yolo1"
-# 
-
 # 하이퍼파라미터 (여기서 수정)
 EPOCHS = 2
 IMGSZ = 640
@@ -43,7 +39,8 @@ def main():
         print("=" * 50)
         print("  [2/3] YOLOv8s 학습")
         print("=" * 50)
-        train_model(epochs=EPOCHS, imgsz=IMGSZ, batch=BATCH, name=MODEL_NAME)
+        # [변경] name 파라미터 제거 (기존: name=MODEL_NAME → 폴더명은 timestamp로 자동 생성)
+        train_model(epochs=EPOCHS, imgsz=IMGSZ, batch=BATCH)
 
     if DO_INFERENCE:
         print("=" * 50)

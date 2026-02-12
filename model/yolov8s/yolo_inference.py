@@ -53,29 +53,12 @@ def yolo_inference(model_path=None, output_name=None):
     ]
     model_to_catid = {i: orig_id for i, orig_id in enumerate(original_ids)}
 
-    # 시각화 결과 저장 경로 (medicine2로 수정)
-    output_img_dir = PROJECT_ROOT / "runs" / "detect" / "test_visuals"
-    output_img_dir.mkdir(parents=True, exist_ok=True)
+    # [변경] 공통 경로 사용 (기존: PROJECT_ROOT / "data" / "raw" / "test_images" 하드코딩)
+    test_img_dir = DATA_TEST_IMAGES
+    test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
 
-    # 2. 테스트 이미지 경로 확보
-    test_img_dir = PROJECT_ROOT / "data" / "raw" / "test_images"
-    test_images = sorted([f for f in os.listdir(test_img_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
-    
     submission_data = []
     ann_id = 1
-    #-------------------------추가부분--------------------------------------
-
-    # for k, v in model.names.items():
-    #     numeric_id = re.sub(r'[^0-9]', '', v) 
-    #     model_to_catid[int(k)] = int(numeric_id)
-
-
-    # # 2. 테스트 이미지 경로 및 파일 목록 확보 (공통 경로 사용)
-    # test_img_dir = DATA_TEST_IMAGES
-    # test_images = sorted([f.name for f in test_img_dir.glob('*') if f.suffix.lower() in ['.jpg', '.png', '.jpeg']])
-
-    # submission_data = []
-    # ann_id = 1
 
     print("🚀 추론 시작...")
     for img_name in tqdm(test_images):
