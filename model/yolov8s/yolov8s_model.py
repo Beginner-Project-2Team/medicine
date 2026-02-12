@@ -8,15 +8,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from imports import *
-from configs.load_paths import DATASET_YOLO
+from configs.load_paths import DATASET_YOLO_AUG
 
-def train_model(epochs=2, imgsz=1024, batch=2):
+def train_model(epochs=50, imgsz=1024, batch=2):
     # [변경] 파라미터를 외부에서 받도록 수정 (기존: model_obj를 받아서 사용)
     # [변경] 모델을 함수 안에서 로드 (기존: 모듈 최상위에서 로드 → import시 불필요한 로드 발생)
     model = YOLO('yolov8s.pt')
     timestamp = datetime.now().strftime("%Y%m%d_%H_%M")
     # 2. 데이터셋 경로 설정
-    data_yaml_path = DATASET_YOLO / "data.yaml"
+    data_yaml_path = DATASET_YOLO_AUG / "data.yaml"
 
 
     # [변경] 저장 경로를 outputs/yolo로 통일 (기존: outputs/yolov8_learn_results → inference 탐색 경로와 불일치)
@@ -32,14 +32,15 @@ def train_model(epochs=2, imgsz=1024, batch=2):
         device=0,              # CUDA 사용을 위해 0으로 설정
         project=str(save_project_dir),
         name=f'yolov8_pill_{timestamp}',  # [변경] timestamp 변수 사용 (기존: datetime.now()를 다시 호출)
+        optimizer = 'SGD' 
 
         # lr0 = 0.01
-        mosaic=1.0,       # 모자이크
-        mixup=0.0,        # 이미지 겹치기
-        hsv_h=0.005, hsv_s=0.2, hsv_v=0.2, # 색조 변경, 채도 변경, 명도 변경
-        degrees=30.0, flipud=0.5, fliplr=0.5,  # 회전, 상하 반전, 좌우 반전
-        translate=0.1, scale=0.2, shear=0.0,   # 이동, 확대/축소, 전단 변형
-        perspective=0.001,  # 투영 변형
+        # mosaic=1.0,       # 모자이크
+        # mixup=0.0,        # 이미지 겹치기
+        # hsv_h=0.005, hsv_s=0.2, hsv_v=0.2, # 색조 변경, 채도 변경, 명도 변경
+        # degrees=30.0, flipud=0.5, fliplr=0.5,  # 회전, 상하 반전, 좌우 반전
+        # translate=0.1, scale=0.2, shear=0.0,   # 이동, 확대/축소, 전단 변형
+        # perspective=0.001,  # 투영 변형
     )
 
     # 4. 성능 검증

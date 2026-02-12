@@ -11,3 +11,4 @@ data:
 # 데이터셋 관련
 dataset:
   yolo_dataset: dataset/yolo_dataset  # YOLO 변환 데이터셋 저장 위치
+  yolo_dataset_aug: dataset/yolo_dataset_aug

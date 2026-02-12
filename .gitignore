@@ -5,11 +5,13 @@ data/processed/*
 # YOLO 변환 데이터셋
 dataset/yolo_dataset/images/
 dataset/yolo_dataset/labels/
+dataset/yolo_dataset_aug/
 
 # 학습 결과
 runs/
 outputs/yolo/
 outputs/rcnn/
+outputs/pred_visual/
 
 # Python
 __pycache__/
@@ -68,6 +70,8 @@ logs/
 *.xlsx
 *.pkl
 *.pickle
+*.png
+*.xtx
 
 # Model files
 *.pth

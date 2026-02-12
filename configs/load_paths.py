@@ -34,4 +34,5 @@ DATA_TRAIN_IMAGES = get_absolute_path(paths_config["data"]["train_images"])
 
 # 데이터셋
 DATASET_YOLO = get_absolute_path(paths_config["dataset"]["yolo_dataset"])
+DATASET_YOLO_AUG = get_absolute_path(paths_config["dataset"]["yolo_dataset_aug"])
 
