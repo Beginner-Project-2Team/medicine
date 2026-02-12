@@ -6,6 +6,11 @@ data/processed/*
 dataset/yolo_dataset/images/
 dataset/yolo_dataset/labels/
 
+# 이미지 합성 증강 데이터
+data/augmented/
+data/train_merged/
+dataset/yolo_dataset_aug/
+
 # 학습 결과
 runs/
 outputs/yolo/

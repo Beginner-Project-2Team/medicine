@@ -12,12 +12,17 @@ from imports import *
 from configs.load_paths import DATA_TRAIN_IMAGES, DATA_TEST_IMAGES
 from preprocessing.coco_data_integration import get_integrated_coco_data
 
+# 증강 데이터 경로
+MERGED_IMG_DIR = Path(PROJECT_ROOT) / "data" / "train_merged" / "images"
+MERGED_JSON = Path(PROJECT_ROOT) / "data" / "train_merged" / "merged_coco_data.json"
+
 
 class PillDataset(Dataset):
-    def __init__(self, split="train", transforms=None, catid_to_model=None):
+    def __init__(self, split="train", transforms=None, catid_to_model=None, use_aug=False):
         self.split = split
         self.transforms = transforms
         self.catid_to_model = catid_to_model or {}
+        self.use_aug = use_aug
 
         if split in ("train", "val"):
             # [핵심] 공통 데이터 통합 함수 사용 (YOLO와 동일한 데이터!)
@@ -53,6 +58,18 @@ class PillDataset(Dataset):
 
             self.filenames = train_files if split == "train" else val_files
             self.img_dir = DATA_TRAIN_IMAGES
+
+            # [증강] train split + use_aug=True이면 증강 이미지 추가
+            if split == "train" and use_aug and MERGED_JSON.exists():
+                with open(MERGED_JSON, "r", encoding="utf-8") as f:
+                    merged_data = json.load(f)
+                aug_files = [fn for fn in merged_data.keys() if fn.startswith("aug_")]
+                for fn in aug_files:
+                    self.integrated_data[fn] = merged_data[fn]
+                self.filenames = self.filenames + aug_files
+                self.img_dir_aug = MERGED_IMG_DIR
+                print(f"  증강 이미지 {len(aug_files)}장 추가")
+
             print(f"  {split} split: {len(self.filenames)}개 이미지")
 
         elif split == "test":
@@ -71,8 +88,11 @@ class PillDataset(Dataset):
         return len(self.filenames)
 
     def _load_image(self, file_name: str):
-
-        img_path = self.img_dir / file_name
+        # 증강 이미지는 merged 폴더에서 로드
+        if file_name.startswith("aug_") and hasattr(self, "img_dir_aug"):
+            img_path = self.img_dir_aug / file_name
+        else:
+            img_path = self.img_dir / file_name
         img = Image.open(img_path).convert("RGB")
         return img
 

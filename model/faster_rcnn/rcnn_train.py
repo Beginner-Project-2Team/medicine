@@ -2,6 +2,7 @@
 Faster R-CNN 학습 스크립트
 my.ipynb의 학습 코드를 Python 파일로 정리한 버전
 공통 데이터 통합 함수(get_integrated_coco_data)를 활용
+사용법 : python model/faster_rcnn/rcnn_train.py
 """
 import sys
 from pathlib import Path
@@ -16,6 +17,24 @@ from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from configs.load_paths import DATA_TRAIN_ANNOTATIONS
 from dataset.faster_rcnn.rcnn_dataset import PillDataset, detection_collate_fn
 from model.faster_rcnn.rcnn_model import create_model
+
+# ============================================================
+# 하이퍼파라미터 (여기서 수정)
+# ============================================================
+BATCH_SIZE = 4
+NUM_EPOCHS = 2
+LR = 0.001
+WEIGHT_DECAY = 0.0005
+MODEL_NAME = "rcnn"
+USE_AUG = True
+
+# 스케줄러
+SCHEDULER_STEP_SIZE = 12   # 몇 에포크마다 lr 감소
+SCHEDULER_GAMMA = 0.5      # lr 감소 비율
+
+# 데이터 증강 (train_transform에서 사용)
+ENABLE_AUGMENTATION = False  # True로 바꾸면 아래 증강 활성화
+# ============================================================
 
 # 1. 클래스 매핑 구축
 # [핵심] 원본 category_id → 모델 내부 label로 변환하는 매핑
@@ -187,12 +206,12 @@ def train_only(
             f"mAP@[.75:.95]: {mAP_result['mAP_75_95']:.4f}"  # [추가] 캐글 지표
         )
 
-        # best mAP 갱신 시 모델 저장
-        if mAP_result["mAP_50"] > best_mAP:
-            best_mAP = mAP_result["mAP_50"]
+        # best mAP 갱신 시 모델 저장 (캐글 지표 기준: mAP@[0.75:0.95])
+        if mAP_result["mAP_75_95"] > best_mAP:
+            best_mAP = mAP_result["mAP_75_95"]
             best_path = save_path.replace("_last.pth", ".pth")
             torch.save(model.state_dict(), best_path)
-            print(f"  >> Best model saved! (mAP@50: {best_mAP:.4f})")
+            print(f"  >> Best model saved! (mAP@[.75:.95]: {best_mAP:.4f})")
 
         # [중요] 스케줄러 업데이트 (에포크마다 학습률 조정)
         lr_scheduler.step()
@@ -204,7 +223,13 @@ def train_only(
 
 # 4. 메인 실행
 
-def run_training(batch_size=4, num_epochs=2, lr=0.01, name="rcnn1"):
+def run_training(
+    batch_size=BATCH_SIZE,
+    num_epochs=NUM_EPOCHS,
+    lr=LR,
+    name=MODEL_NAME,
+    use_aug=USE_AUG,
+):
     """Faster R-CNN 학습 파이프라인"""
     # 모델 저장 경로 (outputs/rcnn/rcnn1.pth)
     save_dir = PROJECT_ROOT / "outputs" / "rcnn"
@@ -221,6 +246,7 @@ def run_training(batch_size=4, num_epochs=2, lr=0.01, name="rcnn1"):
         split="train",
         transforms=train_transform,
         catid_to_model=catid_to_model,
+        use_aug=use_aug,
     )
 
     val_dataset = PillDataset(
@@ -252,17 +278,16 @@ def run_training(batch_size=4, num_epochs=2, lr=0.01, name="rcnn1"):
 
     # 옵티마이저 설정
     params = [p for p in model.parameters() if p.requires_grad]
-    optimizer = torch.optim.SGD(
+    optimizer = torch.optim.Adam(
         params,
         lr=lr,
-        momentum=0.9,
-        weight_decay=0.0005,
+        weight_decay=WEIGHT_DECAY,
     )
 
     lr_scheduler = torch.optim.lr_scheduler.StepLR(
         optimizer,
-        step_size=11,
-        gamma=0.5,
+        step_size=SCHEDULER_STEP_SIZE,
+        gamma=SCHEDULER_GAMMA,
     )
 
     # 학습 시작
@@ -292,4 +317,4 @@ def run_training(batch_size=4, num_epochs=2, lr=0.01, name="rcnn1"):
 
 
 if __name__ == "__main__":
-    run_training(name="rcnn1")  # ← 개별 실행 시 여기서 이름 변경
+    run_training()  # 상단 하이퍼파라미터 사용
