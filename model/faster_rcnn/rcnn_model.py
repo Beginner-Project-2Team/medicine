@@ -11,12 +11,18 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from imports import *
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
+# ============================================================
+# 하이퍼파라미터 (여기서 수정)
+# ============================================================
+BACKBONE_WEIGHTS = "COCO_V1"  # 사전학습 가중치 ("COCO_V1" / None)
+# ============================================================
 
-def create_model(num_classes: int):
-   
+
+def create_model(num_classes: int, backbone_weights=BACKBONE_WEIGHTS):
+
     # [1단계] COCO로 사전학습된 Faster R-CNN 불러오기
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(
-        weights="COCO_V1"  # 사전학습 가중치 (전이학습)
+        weights=backbone_weights
     )
 
     # [2단계] 마지막 분류기를 우리 데이터에 맞게 교체

@@ -14,11 +14,19 @@ from configs.load_paths import DATA_TEST_IMAGES, DATA_TRAIN_ANNOTATIONS
 from model.faster_rcnn.rcnn_model import create_model
 from model.faster_rcnn.rcnn_train import build_class_mapping
 
+# ============================================================
+# 하이퍼파라미터 (여기서 수정)
+# ============================================================
+CONF_THRESHOLD = 0.25      # confidence threshold (낮출수록 검출 많아짐)
+MODEL_PATH = None           # None이면 outputs/rcnn/ 에서 최신 best 자동 탐색
+OUTPUT_NAME = None          # None이면 모델 이름으로 자동 생성 (예: rcnn1.csv)
+# ============================================================
+
 
 def rcnn_inference(
-    model_path=None,
-    conf_threshold=0.25,
-    output_name=None,
+    model_path=MODEL_PATH,
+    conf_threshold=CONF_THRESHOLD,
+    output_name=OUTPUT_NAME,
 ):
     """
     학습된 Faster R-CNN 모델로 테스트 이미지 추론 후 제출 CSV 생성
