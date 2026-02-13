@@ -13,6 +13,16 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from imports import *
 import torchvision.transforms.v2 as T
+
+# 재현성을 위한 시드 고정
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+torch.cuda.manual_seed(SEED)
+torch.cuda.manual_seed_all(SEED)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 from torchmetrics.detection.mean_ap import MeanAveragePrecision
 from configs.load_paths import DATA_TRAIN_ANNOTATIONS
 from dataset.faster_rcnn.rcnn_dataset import PillDataset, detection_collate_fn
