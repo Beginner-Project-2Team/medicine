@@ -101,7 +101,7 @@ YOLO와 RCNN 예측 CSV 2개를 NMS로 병합합니다. 상단에서 CSV 파일�
 
 박윤민 - https://www.notion.so/2-Daily-2f7dc68f96af802ebf18de92a2913a02
 
-임운하 - 업무일지 폴더에 pdf파일 있음
+임운하 - [업무일지](<업무일지/Daily Checklist & Review - 2팀 임운하.pdf>)
 
 최지훈 - https://www.notion.so/306f1a760e2780eb94fde9e3fdfa6c9e?source=copy_link
 
