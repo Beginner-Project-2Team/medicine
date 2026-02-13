@@ -15,3 +15,4 @@ tqdm
 scikit-learn
 torchmetrics
 pycocotools
+polars

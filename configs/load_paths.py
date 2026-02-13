@@ -27,6 +27,7 @@ def get_absolute_path(relative_path):
 # 경로 변수 정의
 
 # 데이터
+DATA_RAW = get_absolute_path(paths_config["data"]["raw"])
 DATA_PROCESSED = get_absolute_path(paths_config["data"]["processed"])
 DATA_TEST_IMAGES = get_absolute_path(paths_config["data"]["test_images"])
 DATA_TRAIN_ANNOTATIONS = get_absolute_path(paths_config["data"]["train_annotations"])
