@@ -3,6 +3,7 @@
 
 # 데이터 관련 경로
 data:
+  raw: data/raw
   processed: data/processed
   test_images: data/raw/test_images
   train_annotations: data/raw/train_annotations

@@ -1,79 +1,82 @@
+"""
+NMS 앙상블 스크립트
+두 모델의 예측 CSV를 합친 뒤 NMS로 중복 박스 제거
+사용법: python ensemble/ensemble.py
+"""
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
 import pandas as pd
 import torch
 from torchvision.ops import nms
 
-"""
-실행 안 되면 바로 아래 부분 수정해서 써주세요~
-잘 될지도...
-"""
-csv_1 = pd.read_csv(r"./submission.csv")
-csv_2 = pd.read_csv(r"./submit/yolov8_1.csv")
-OUT_CSV = "ensemble_preds.csv"
+# ============================================================
+# 설정 (여기서 수정)
+# ============================================================
+CSV_A = "FastRCNN_1.csv"       # submit/ 안의 첫 번째 CSV
+CSV_B = "yolov8m0.25.csv"      # submit/ 안의 두 번째 CSV
+OUT_NAME = "ensemble_preds.csv"
 
-IOU_THR = 0.5
-SCORE_MIN = 0.0   # 너무 낮은 score 박스 미리 제거하고 싶으면 조절
-
-cols = ["annotation_id", "image_id", "category_id",
-        "bbox_x", "bbox_y", "bbox_w", "bbox_h", "score"]
-
-df_a = csv_1.copy()
-df_b = csv_2.copy()
-
-# annotation_id는 새로 매길 거라면 지금은 의미 없음
-df_a["source"] = "A"
-df_b["source"] = "B"
-
-df_all = pd.concat([df_a, df_b], ignore_index=True)
-
-# score 너무 낮은 건 미리 제거
-df_all = df_all[df_all["score"] >= SCORE_MIN]
+IOU_THR = 0.5                  # NMS IoU threshold
+SCORE_MIN = 0.2               # 최소 score (이하 제거)
+# ============================================================
 
 
-ensemble_rows = []
-new_ann_id = 0
+def run_ensemble(csv_a=CSV_A, csv_b=CSV_B, out_name=OUT_NAME,
+                 iou_thr=IOU_THR, score_min=SCORE_MIN):
+    submit_dir = PROJECT_ROOT / "submit"
 
-# image_id, category_id 조합으로 그룹핑
-for (image_id, category_id), df_grp in df_all.groupby(["image_id", "category_id"]):
+    df_a = pd.read_csv(submit_dir / csv_a)
+    df_b = pd.read_csv(submit_dir / csv_b)
 
-    # boxes: [N, 4] (xyxy), scores: [N]
-    x1 = df_grp["bbox_x"]
-    y1 = df_grp["bbox_y"]
-    x2 = df_grp["bbox_x"] + df_grp["bbox_w"]
-    y2 = df_grp["bbox_y"] + df_grp["bbox_h"]
+    df_a["source"] = "A"
+    df_b["source"] = "B"
 
-    boxes = torch.tensor(
-        list(zip(x1, y1, x2, y2)),
-        dtype=torch.float32,
-    )
-    scores = torch.tensor(df_grp["score"].values, dtype=torch.float32)
+    df_all = pd.concat([df_a, df_b], ignore_index=True)
+    df_all = df_all[df_all["score"] >= score_min]
 
-    # NMS 실행
-    keep = nms(boxes, scores, iou_threshold=IOU_THR)
+    ensemble_rows = []
+    new_ann_id = 0
 
-    boxes_nms = boxes[keep]
-    scores_nms = scores[keep]
+    for (image_id, category_id), df_grp in df_all.groupby(["image_id", "category_id"]):
+        x1 = df_grp["bbox_x"]
+        y1 = df_grp["bbox_y"]
+        x2 = df_grp["bbox_x"] + df_grp["bbox_w"]
+        y2 = df_grp["bbox_y"] + df_grp["bbox_h"]
 
-    for b, s in zip(boxes_nms, scores_nms):
-        new_ann_id += 1
-        x1, y1, x2, y2 = b.tolist()
-        w = x2 - x1
-        h = y2 - y1
+        boxes = torch.tensor(
+            list(zip(x1, y1, x2, y2)),
+            dtype=torch.float32,
+        )
+        scores = torch.tensor(df_grp["score"].values, dtype=torch.float32)
 
-        ensemble_rows.append({
-            "annotation_id": new_ann_id,
-            "image_id": int(image_id),
-            "category_id": int(category_id),
-            "bbox_x": x1,
-            "bbox_y": y1,
-            "bbox_w": w,
-            "bbox_h": h,
-            "score": float(s),
-        })
+        keep = nms(boxes, scores, iou_threshold=iou_thr)
+        boxes_nms = boxes[keep]
+        scores_nms = scores[keep]
 
-# =========================
-# 3. CSV 저장
-# =========================
-df_ens = pd.DataFrame(ensemble_rows)
-df_ens.to_csv(OUT_CSV, index=False)
+        for b, s in zip(boxes_nms, scores_nms):
+            new_ann_id += 1
+            bx1, by1, bx2, by2 = b.tolist()
 
-print(f"Saved NMS ensemble to {OUT_CSV}, total rows = {len(df_ens)}")
+            ensemble_rows.append({
+                "annotation_id": new_ann_id,
+                "image_id": int(image_id),
+                "category_id": int(category_id),
+                "bbox_x": bx1,
+                "bbox_y": by1,
+                "bbox_w": bx2 - bx1,
+                "bbox_h": by2 - by1,
+                "score": float(s),
+            })
+
+    df_ens = pd.DataFrame(ensemble_rows)
+    output_path = submit_dir / out_name
+    df_ens.to_csv(output_path, index=False)
+    print(f"Saved NMS ensemble to {output_path}, total rows = {len(df_ens)}")
+
+
+if __name__ == "__main__":
+    run_ensemble()

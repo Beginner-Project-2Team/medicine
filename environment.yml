@@ -23,3 +23,4 @@ dependencies:
       - tqdm               # 진행바
       - torchmetrics       # mAP 등 평가 지표
       - pycocotools        # COCO 평가 도구
+      - polars             # 데이터프레임
