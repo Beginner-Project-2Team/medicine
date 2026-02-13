@@ -107,4 +107,4 @@ YOLO와 RCNN 예측 CSV 2개를 NMS로 병합합니다. 상단에서 CSV 파일�
 
 ## 📄 최종 보고서
 
-👉 https://jet-port-669.notion.site/2-3030b7469455809fa661e57a5c9c548c?source=copy_link
+📄 [최종보고서_2팀.pdf](<(AI7기, 초급프로젝트) 최종보고서_2팀.pdf>)
